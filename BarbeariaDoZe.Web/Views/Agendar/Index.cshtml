@@ -1,0 +1,106 @@
+@model AgendarViewModel
+@{
+    ViewData["Title"] = "Agendar";
+    ViewData["Ativo"] = "agendar";
+    ViewData["Css"] = "agendar";
+}
+
+<section class="agendamento">
+    <div class="titulo-agendamento">
+        <h2>AGENDAR HORÁRIO</h2>
+        <p>AGENDE SEU ATENDIMENTO EM POUCOS PASSOS</p>
+    </div>
+
+    <form method="post" class="box-agendamento" id="form-agendar">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="ServicoId" id="ServicoId">
+        <input type="hidden" asp-for="BarbeiroId" id="BarbeiroId">
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="mensagem-erro" role="alert">
+                @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors)) { <div>@e.ErrorMessage</div> }
+            </div>
+        }
+
+        <div class="etapa"><div class="numero">1</div><h3>ESCOLHA O SERVIÇO</h3></div>
+        @foreach (var s in Model.Servicos)
+        {
+            <div class="servico">
+                <div class="info-servico">
+                    <h4>@s.Nome.ToUpper()</h4>
+                    <p>@s.Descricao</p>
+                    <span>Tempo estimado: @((int)(s.TempoEstimado?.TotalMinutes ?? 0)) min</span>
+                    <span>Valor: @s.Preco.ToString("C2")</span>
+                </div>
+                <button type="button" data-servico="@s.Id" class="sel-servico @(Model.ServicoId == s.Id ? "marcado" : "")">Selecionar</button>
+            </div>
+        }
+
+        <div class="etapa"><div class="numero">2</div><h3>ESCOLHA O PROFISSIONAL</h3></div>
+        <div class="barbeiros">
+            @foreach (var b in Model.Barbeiros)
+            {
+                var ini = string.Concat(b.Nome.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(p => p[0])).ToUpper();
+                <div class="barbeiro">
+                    <div class="foto-barbeiro">@ini</div>
+                    <div class="info-barbeiro">
+                        <h4>@b.Nome</h4>
+                        <p>Avaliação: @b.Avaliacao.ToString("0.0")/5</p>
+                    </div>
+                    <button type="button" data-barbeiro="@b.Id" class="sel-barbeiro @(Model.BarbeiroId == b.Id ? "marcado" : "")">Selecionar</button>
+                </div>
+            }
+        </div>
+
+        <div class="etapa"><div class="numero">3</div><h3>ESCOLHA A DATA E HORÁRIO</h3></div>
+        <div class="inputs">
+            <input type="date" id="Data" name="Data" value="@Model.Data?.ToString("yyyy-MM-dd")" min="@BarbeariaDoZe.Negocio.HorarioLocal.Hoje.ToString("yyyy-MM-dd")" max="@BarbeariaDoZe.Negocio.HorarioLocal.Hoje.AddDays(90).ToString("yyyy-MM-dd")" aria-label="Data do atendimento">
+            <select aria-label="Horário disponível" id="Hora" name="Hora"><option value="">Escolha o serviço, o profissional e a data</option></select>
+        </div>
+
+        <div class="etapa"><div class="numero">4</div><h3>CONFIRME SEU ATENDIMENTO</h3></div>
+        @if (User.IsInRole("Cliente")) { <p class="aviso-conta"><i class="bi bi-person-check"></i> Reserva para <strong>@User.Identity!.Name</strong>.</p> }
+        else if (User.IsInRole("Admin")) { <p class="aviso-conta">Você entrou como administrador. Para reservar, use uma conta de cliente.</p> }
+        else { <p class="aviso-conta">Para confirmar, acesse sua conta de cliente: <a asp-controller="Conta" asp-action="Login" asp-route-returnUrl="/Agendar">Entrar</a> ou <a asp-controller="Conta" asp-action="Cadastro">Criar conta</a>.</p> }
+
+        <button type="submit" class="btn-confirmar">CONFIRMAR AGENDAMENTO</button>
+    </form>
+</section>
+
+@section Scripts {
+<script>
+const f = document.getElementById('form-agendar');
+const servico = document.getElementById('ServicoId'), barbeiro = document.getElementById('BarbeiroId');
+const data = document.getElementById('Data'), hora = document.getElementById('Hora');
+const horaInicial = '@Model.Hora';
+
+function marcar(sel, btn) {
+  document.querySelectorAll(sel).forEach(b => { b.classList.remove('marcado'); b.textContent = 'Selecionar'; b.parentElement.classList.remove('selecionado'); });
+  btn.classList.add('marcado'); btn.textContent = '✓ Selecionado'; btn.parentElement.classList.add('selecionado');
+}
+document.querySelectorAll('button.marcado').forEach(b => { b.textContent = '✓ Selecionado'; b.parentElement.classList.add('selecionado'); });
+
+async function carregarHorarios(manter) {
+  if (!servico.value || !barbeiro.value || !data.value) {
+    const falta = [!servico.value && 'o serviço', !barbeiro.value && 'o profissional', !data.value && 'a data'].filter(Boolean).join(', ');
+    hora.innerHTML = `<option value="">Escolha ${falta}</option>`;
+    return;
+  }
+  hora.disabled = true;
+  try {
+  const r = await fetch(`/Agendar/Horarios?data=${data.value}&servicoId=${servico.value}&barbeiroId=${barbeiro.value}`);
+  const livres = r.ok ? await r.json() : [];
+  hora.innerHTML = livres.length ? `<option value="">Escolha o horário (${livres.length} livres)</option>` : '<option value="">Sem horários livres neste dia (o barbeiro não atende ou está lotado)</option>';
+  livres.forEach(h => hora.add(new Option(h, h, false, h === manter)));
+  } catch { hora.innerHTML = '<option value="">Não foi possível carregar. Tente novamente.</option>'; }
+  finally { hora.disabled = false; }
+}
+
+document.querySelectorAll('.sel-servico').forEach(b => b.onclick = () => { servico.value = b.dataset.servico; marcar('.sel-servico', b); carregarHorarios(); });
+document.querySelectorAll('.sel-barbeiro').forEach(b => b.onclick = () => { barbeiro.value = b.dataset.barbeiro; marcar('.sel-barbeiro', b); carregarHorarios(); });
+data.onchange = () => carregarHorarios();
+carregarHorarios(horaInicial);
+f.addEventListener('submit', () => { f.querySelector('button[type="submit"]').disabled = true; });
+</script>
+}

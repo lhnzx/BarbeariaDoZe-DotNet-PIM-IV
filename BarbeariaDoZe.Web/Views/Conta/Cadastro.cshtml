@@ -1,0 +1,38 @@
+@model CadastroViewModel
+@{
+    Layout = "_LayoutSimples";
+    ViewData["Title"] = "Cadastro";
+    ViewData["Css"] = "cadastro";
+}
+<form method="post">
+    <img src="~/img/Barbearia_Logo.png" alt="logo" class="logo-login">
+    <h1>Cadastre-se</h1>
+
+    @if (Model.Erro is not null) { <p class="alerta erro" role="alert">@Model.Erro</p> }
+
+    <div class="input-box">
+        <input asp-for="Nome" aria-label="Nome" placeholder="Nome completo" type="text" autocomplete="name" required>
+        <i class="bx bxs-user"></i>
+    </div>
+    <div class="input-box">
+        <input asp-for="Email" aria-label="Email" placeholder="E-mail" type="email" autocomplete="email" required>
+        <i class="bx bxs-envelope"></i>
+    </div>
+    <div class="input-box">
+        <input asp-for="Telefone" aria-label="Telefone" placeholder="Telefone com DDD (só números)" type="tel" inputmode="numeric" maxlength="11" autocomplete="tel" required>
+        <i class="bx bxs-phone"></i>
+    </div>
+    <div class="input-box">
+        <input asp-for="Senha" type="password" autocomplete="new-password" minlength="12" maxlength="128" placeholder="Senha (mínimo 12 caracteres)" aria-label="Senha" required>
+        <i class="bx bxs-lock-alt"></i>
+    </div>
+    <div class="input-box">
+        <input asp-for="ConfirmarSenha" type="password" autocomplete="new-password" placeholder="Confirmar senha" aria-label="Confirmar senha" required>
+        <i class="bx bxs-lock"></i>
+    </div>
+    <button type="submit" class="login">Criar conta</button>
+
+    <div class="register-link">
+        <p>Já tem uma conta? <a asp-action="Login">Entrar</a></p>
+    </div>
+</form>

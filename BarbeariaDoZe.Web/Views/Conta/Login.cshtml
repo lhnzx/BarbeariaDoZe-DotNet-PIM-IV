@@ -1,0 +1,35 @@
+@model LoginViewModel
+@{
+    Layout = "_LayoutSimples";
+    ViewData["Title"] = "Login";
+    ViewData["Css"] = "login";
+}
+<form method="post">
+    <input asp-for="ReturnUrl" type="hidden">
+    <img src="~/img/Barbearia_Logo.png" alt="logo" class="logo-login">
+    <h1>Login</h1>
+
+    @if (TempData["Mensagem"] is string ok) { <p class="alerta ok" role="status">@ok</p> }
+    @if (Model.Erro is not null) { <p class="alerta erro" role="alert">@Model.Erro</p> }
+
+    <div class="input-box">
+        <input asp-for="Email" aria-label="Email" placeholder="E-mail" type="email" autocomplete="username" required>
+        <i class="bx bxs-user"></i>
+    </div>
+    <div class="input-box">
+        <input asp-for="Senha" aria-label="Senha" placeholder="Senha" type="password" autocomplete="current-password" required>
+        <i class="bx bxs-lock-alt"></i>
+    </div>
+
+    <div class="remember-forgot">
+        <label><input asp-for="Lembrar"> Lembrar de mim</label>
+        <a asp-action="Senha">Esqueci a senha</a>
+    </div>
+
+    <button type="submit" class="login">Entrar</button>
+
+    <div class="register-link">
+        <p>Não tem uma conta? <a asp-action="Cadastro">Cadastre-se</a></p>
+    </div>
+    <div class="funcionario"><a asp-controller="Home" asp-action="Index"><i class="bx bx-arrow-back"></i> Voltar ao site</a></div>
+</form>

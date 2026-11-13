@@ -1,0 +1,62 @@
+@{
+    string ativo = ViewData["Ativo"] as string ?? "";
+    string css = ViewData["Css"] as string ?? "index";
+    bool logado = User.Identity?.IsAuthenticated == true;
+    string Cls(string n) => ativo == n ? "ativo" : "";
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Barbearia do Zé</title>
+    <link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/estilizacoes/@(css).css">
+    <link rel="icon" type="image/png" href="~/img/Barbearia_Logo.png">
+
+    <link rel="stylesheet" href="~/estilizacoes/identidade.css">
+</head>
+<body>
+    <input type="checkbox" id="toggle-menu">
+
+    <div class="sidebar">
+        <label for="toggle-menu" class="btn-fechar">✕</label>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a class="@Cls("inicio")" asp-controller="Home" asp-action="Index">Início</a></li>
+                <li><a class="@Cls("agendar")" asp-controller="Agendar" asp-action="Index">Agendar</a></li>
+                <li><a class="@Cls("servicos")" asp-controller="Servicos" asp-action="Index">Serviços</a></li>
+                <li><a class="@Cls("contato")" asp-controller="Home" asp-action="Contato">Contato</a></li>
+                @if (logado) { <li><a class="@Cls("admin")" asp-controller="@(User.IsInRole("Admin") ? "Admin" : "Agendar")" asp-action="@(User.IsInRole("Admin") ? "Index" : "Meus")"><i class="bi bi-person-circle"></i> @User.Identity!.Name</a></li> }
+                else { <li><a asp-controller="Conta" asp-action="Login"><i class="bi bi-person-circle"></i> Entrar</a></li> }
+            </ul>
+        </nav>
+    </div>
+
+    <header class="header">
+        <div class="container-logo">
+            <img src="~/img/Barbearia_Logo.png" alt="Barbearia do Zé">
+            <h1>Barbearia do Zé</h1>
+        </div>
+        <label for="toggle-menu" class="hamburguer"><i class="bi bi-list"></i></label>
+        <nav class="menu">
+            <ul>
+                <li><a class="@Cls("inicio")" asp-controller="Home" asp-action="Index">Início</a></li>
+                <li><a class="@Cls("agendar")" asp-controller="Agendar" asp-action="Index">Agendar</a></li>
+                <li><a class="@Cls("servicos")" asp-controller="Servicos" asp-action="Index">Serviços</a></li>
+                <li><a class="@Cls("contato")" asp-controller="Home" asp-action="Contato">Contato</a></li>
+                @if (logado) { <li><a class="@Cls("admin")" asp-controller="@(User.IsInRole("Admin") ? "Admin" : "Agendar")" asp-action="@(User.IsInRole("Admin") ? "Index" : "Meus")"><i class="bi bi-person-circle"></i> @User.Identity!.Name</a></li> }
+                else { <li><a asp-controller="Conta" asp-action="Login"><i class="bi bi-person-circle"></i> Entrar</a></li> }
+            </ul>
+        </nav>
+    </header>
+
+    @RenderBody()
+
+    <footer>
+        <p>© 2026 Barbearia do Zé - Todos os direitos reservados.</p>
+    </footer>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

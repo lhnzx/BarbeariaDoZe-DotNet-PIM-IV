@@ -1,0 +1,21 @@
+﻿@{
+    string css = ViewData["Css"] as string ?? "login";
+}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - Barbearia do Zé</title>
+    <link href="/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/estilizacoes/@(css).css">
+    <link rel="icon" type="image/png" href="~/img/Barbearia_Logo.png">
+    <link rel="stylesheet" href="~/estilizacoes/identidade.css">
+</head>
+<body class="pagina-conta">
+    <main class="container">
+        @RenderBody()
+    </main>
+</body>
+</html>
+

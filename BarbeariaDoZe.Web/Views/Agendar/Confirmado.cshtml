@@ -1,0 +1,31 @@
+﻿@model Agendamento
+@{
+    ViewData["Title"] = "Agendamento confirmado";
+    ViewData["Ativo"] = "agendar";
+    ViewData["Css"] = "agendar";
+}
+<section class="agendamento">
+    <div class="titulo-agendamento">
+        <h2>AGENDAMENTO CONFIRMADO!</h2>
+        <p>SEU HORÁRIO FOI RESERVADO COM SUCESSO. GUARDE OS DADOS ABAIXO</p>
+    </div>
+    <div class="box-agendamento">
+        <div class="servico">
+            <div class="info-servico">
+                <h4>@Model.Servico.Nome.ToUpper()</h4>
+                <p>Cliente: @Model.Usuario.Nome</p>
+                <p>Profissional: @Model.Barbeiro?.Nome</p>
+                <span>Data: @Model.DataHoraInicio.ToString("dd/MM/yyyy")</span>
+                <span>Horário: @Model.DataHoraInicio.ToString("HH:mm") às @Model.DataHoraFim.ToString("HH:mm")</span>
+                <span>Valor: @((Model.Preco ?? 0).ToString("C2"))</span>
+                <span>Status: @Model.Status</span>
+                <p>Reserva nº @Model.Id. Você pode consultar ou cancelar em “Meus horários”.</p>
+            </div>
+        </div>
+        <div class="acoes-conta" style="margin-top:0">
+            <a asp-action="Meus" class="btn-ouro"><i class="bi bi-list-check"></i> Ver meus horários</a>
+            <a asp-controller="Home" asp-action="Index" class="btn-contorno">Voltar ao início</a>
+        </div>
+    </div>
+</section>
+

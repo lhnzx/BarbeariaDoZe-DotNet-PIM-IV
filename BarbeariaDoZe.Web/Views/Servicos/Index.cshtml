@@ -1,0 +1,50 @@
+﻿@model List<Servico>
+@{
+    ViewData["Title"] = "Serviços";
+    ViewData["Ativo"] = "servicos";
+    ViewData["Css"] = "style";
+
+    // Galerias de referência do site original (PIM III), agora salvas em wwwroot/img/galeria
+    // para que a página funcione mesmo sem internet durante a apresentação.
+    var galerias = new Dictionary<string, string[]>
+    {
+        ["Corte Masculino"] = new[] { "/img/galeria/corte-1.jpg", "/img/galeria/corte-2.jpg" },
+        ["Barba"] = new[] { "/img/galeria/barba-1.jpg", "/img/galeria/barba-2.jpg" },
+        ["Luzes"] = new[] { "/img/galeria/luzes-1.jpg", "/img/galeria/luzes-2.jpg" },
+        ["Bigode"] = new[] { "/img/galeria/bigode-1.jpg" }
+    };
+    var principais = new[] { "Corte Masculino", "Barba", "Combo" };
+}
+
+<div class="container">
+@foreach (var grupo in new[] { (Titulo: "", Principal: true), (Titulo: "Adicionais", Principal: false) })
+{
+    if (!grupo.Principal) { <h2 class="titulo-adicionais">Adicionais</h2> }
+    foreach (var s in Model.Where(x => principais.Contains(x.Nome) == grupo.Principal).OrderBy(x => x.Preco))
+    {
+        var id = "g" + s.Id;
+        <h2>@s.Nome</h2>
+        <div class="card" onclick="toggleGallery('@id')">
+            <div class="service">
+                <div class="service-info">
+                    <h3>@s.Nome</h3>
+                    <p>@s.Descricao</p>
+                    <p>Tempo estimado: @((int)(s.TempoEstimado?.TotalMinutes ?? 0)) min</p>
+                </div>
+                <div class="price">@s.Preco.ToString("C2")</div>
+            </div>
+            @if (galerias.ContainsKey(s.Nome)) { <p class="dica-galeria"><i class="bi bi-images"></i> Clique para ver exemplos</p> }
+            <div id="@id" class="gallery">
+                @if (galerias.TryGetValue(s.Nome, out var fotos)) { foreach (var f in fotos) { <img src="@f" alt="@s.Nome"> } }
+            </div>
+        </div>
+    }
+}
+</div>
+
+@section Scripts {
+<script>
+function toggleGallery(id) { document.getElementById(id).classList.toggle("active"); }
+</script>
+}
+

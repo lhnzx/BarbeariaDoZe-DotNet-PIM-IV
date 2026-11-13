@@ -1,0 +1,51 @@
+@model List<BarbeariaDoZe.Modelos.Agendamento>
+@{
+    ViewData["Title"] = "Meus horários";
+    ViewData["Ativo"] = "admin";
+    ViewData["Css"] = "agendar";
+    string Classe(string s) => s switch { "Concluido" => "concluido", "Cancelado" => "cancelado", _ => "confirmado" };
+    string Texto(string s) => s switch { "Concluido" => "Concluído", _ => s };
+}
+<section class="agendamento">
+    <div class="titulo-agendamento">
+        <h2>MEUS HORÁRIOS</h2>
+        <p>OLÁ, @User.Identity!.Name?.ToUpper()</p>
+    </div>
+
+    <div class="lista-reservas">
+        @if (TempData["Mensagem"] is string mensagem) { <div class="mensagem-ok" role="status">@mensagem</div> }
+        @if (Model.Count == 0)
+        {
+            <div class="reserva"><p style="margin:0;color:#ccc">Você ainda não possui agendamentos. Que tal marcar o primeiro?</p></div>
+        }
+        @foreach (var a in Model)
+        {
+            <div class="reserva">
+                <div>
+                    <h3>@a.Servico.Nome</h3>
+                    <div class="detalhes">
+                        <span><i class="bi bi-calendar-event"></i>@a.DataHoraInicio.ToString("dd/MM/yyyy")</span>
+                        <span><i class="bi bi-clock"></i>@a.DataHoraInicio.ToString("HH:mm") às @a.DataHoraFim.ToString("HH:mm")</span>
+                        <span><i class="bi bi-scissors"></i>@(a.Barbeiro?.Nome ?? "—")</span>
+                        <span><i class="bi bi-cash-coin"></i>@((a.Preco ?? 0).ToString("C2"))</span>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                    <span class="selo @Classe(a.Status)">@Texto(a.Status)</span>
+                    @if (a.Status == "Confirmado")
+                    {
+                        <form asp-action="Cancelar" method="post" onsubmit="return confirm('Deseja cancelar este agendamento?')">
+                            <input type="hidden" name="id" value="@a.Id">
+                            <button class="btn-cancelar-reserva"><i class="bi bi-x-circle"></i> Cancelar</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="acoes-conta">
+        <a asp-action="Index" class="btn-ouro"><i class="bi bi-calendar-plus"></i> Agendar outro horário</a>
+        <form asp-controller="Conta" asp-action="Sair" method="post"><button class="btn-contorno"><i class="bi bi-box-arrow-right"></i> Sair da conta</button></form>
+    </div>
+</section>

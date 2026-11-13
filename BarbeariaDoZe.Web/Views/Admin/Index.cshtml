@@ -1,0 +1,158 @@
+﻿@model PainelViewModel
+@{
+    ViewData["Title"] = "Painel Administrativo";
+    ViewData["Ativo"] = "admin";
+    ViewData["Css"] = "funcionario";
+    var pt = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+    decimal receitaHoje = Model.RelatorioDia.Sum(r => r.Receita);
+}
+
+@functions {
+    string ClasseStatus(string s) => s switch { "Concluido" => "concluido", "Cancelado" => "cancelado", _ => "confirmado" };
+}
+
+<main class="painel">
+    <div class="titulo-painel"><h2>Painel Administrativo</h2></div>
+
+    @if (!string.IsNullOrEmpty(Model.Mensagem)) { <div class="aviso-painel" role="status">@Model.Mensagem</div> }
+
+    <div class="cards-grid">
+
+        <!-- AGENDAMENTOS HOJE -->
+        <input type="checkbox" id="toggle-agendamentos">
+        <div class="card-stat card-expansivel">
+            <label for="toggle-agendamentos" class="card-label">
+                <div class="card-icone"><i class="bi bi-calendar-event"></i></div>
+                <div class="card-info"><span class="numero">@Model.Hoje.Count</span><span class="label">Agendamentos Hoje</span></div>
+                <i class="bi bi-chevron-down seta"></i>
+            </label>
+            <div class="lista-expansivel">
+                @if (!Model.Hoje.Any()) { <p class="vazio">Nenhum agendamento para hoje.</p> }
+                @foreach (var a in Model.Hoje)
+                {
+                    <div class="agendamento-item">
+                        <div class="linha-topo">
+                            <div class="horario">@a.DataHoraInicio.ToString("HH:mm")</div>
+                            <span class="status @ClasseStatus(a.Status)">@a.Status</span>
+                        </div>
+                        <div class="dados-cliente">
+                            <p><i class="bi bi-person"></i> @a.Usuario.Nome</p>
+                            <p><i class="bi bi-telephone"></i> @a.Usuario.Telefone</p>
+                            <p>@a.Servico.Nome — @a.Barbeiro?.Nome</p>
+                            <p class="valor">@((a.Preco ?? 0).ToString("C2", pt))</p>
+                        </div>
+                        @if (a.Status == "Confirmado")
+                        {
+                            <form method="post" asp-action="Status" class="acoes">
+                                <input type="hidden" name="id" value="@a.Id">
+                                <button class="btn-concluir" name="status" value="Concluido"><i class="bi bi-check"></i> Concluir</button>
+                                <button class="btn-cancelar" name="status" value="Cancelado"><i class="bi bi-x"></i> Cancelar</button>
+                            </form>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- TODOS OS AGENDAMENTOS -->
+        <input type="checkbox" id="toggle-todos">
+        <div class="card-stat card-expansivel">
+            <label for="toggle-todos" class="card-label">
+                <div class="card-icone"><i class="bi bi-calendar2-week"></i></div>
+                <div class="card-info"><span class="numero">@Model.Todos.Count</span><span class="label">Todos os Agendamentos</span></div>
+                <i class="bi bi-chevron-down seta"></i>
+            </label>
+            <div class="lista-expansivel">
+                @foreach (var a in Model.Todos)
+                {
+                    <div class="agendamento-item">
+                        <div class="linha-topo">
+                            <div class="horario">@a.DataHoraInicio.ToString("dd/MM/yyyy — HH:mm")</div>
+                            <span class="status @ClasseStatus(a.Status)">@a.Status</span>
+                        </div>
+                        <div class="dados-cliente">
+                            <p><i class="bi bi-person"></i> @a.Usuario.Nome</p>
+                            <p><i class="bi bi-telephone"></i> @a.Usuario.Telefone</p>
+                            <p>@a.Servico.Nome — @a.Barbeiro?.Nome</p>
+                            <p class="valor">@((a.Preco ?? 0).ToString("C2", pt))</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- LISTA DE CLIENTES -->
+        <input type="checkbox" id="toggle-clientes">
+        <div class="card-stat card-expansivel">
+            <label for="toggle-clientes" class="card-label">
+                <div class="card-icone"><i class="bi bi-people"></i></div>
+                <div class="card-info"><span class="numero">@Model.Clientes.Count</span><span class="label">Lista de Clientes</span></div>
+                <i class="bi bi-chevron-down seta"></i>
+            </label>
+            <div class="lista-expansivel">
+                @foreach (var c in Model.Clientes)
+                {
+                    var visitas = Model.Todos.Where(a => a.UsuarioId == c.Id).ToList();
+                    <div class="cliente-item">
+                        <div class="cliente-topo">
+                            <i class="bi bi-person-circle icone-cliente"></i>
+                            <div class="cliente-info">
+                                <strong>@c.Nome</strong>
+                                <p><i class="bi bi-telephone"></i> @c.Telefone</p>
+                                <p><i class="bi bi-envelope"></i> @c.Email</p>
+                            </div>
+                        </div>
+                        <div class="cliente-rodape">
+                            <span>Total de visitas: <strong>@visitas.Count(v => v.Status == "Concluido")</strong></span>
+                            <span>Última visita: <strong>@(visitas.Where(v => v.Status == "Concluido").Select(v => v.DataHoraInicio.ToString("dd/MM/yyyy")).FirstOrDefault() ?? "—")</strong></span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- RECEITA HOJE (stored procedure) -->
+        <input type="checkbox" id="toggle-receita">
+        <div class="card-stat card-expansivel">
+            <label for="toggle-receita" class="card-label">
+                <div class="card-icone"><i class="bi bi-cash-coin"></i></div>
+                <div class="card-info"><span class="numero">@receitaHoje.ToString("C2", pt)</span><span class="label">Receita Hoje</span></div>
+                <i class="bi bi-chevron-down seta"></i>
+            </label>
+            <div class="lista-expansivel">
+                @foreach (var r in Model.RelatorioDia.Where(x => x.TotalAgendamentos > 0))
+                {
+                    <div class="receita-item"><span class="receita-servico">@r.Servico — @r.Concluidos concluído(s)</span><span class="receita-valor">@r.Receita.ToString("C2", pt)</span></div>
+                }
+                <div class="receita-total"><span>Total do dia</span><span>@receitaHoje.ToString("C2", pt)</span></div>
+            </div>
+        </div>
+
+        <!-- RELATÓRIO POR PERÍODO (stored procedure) -->
+        <input type="checkbox" id="toggle-relatorio" checked>
+        <div class="card-stat card-expansivel">
+            <label for="toggle-relatorio" class="card-label">
+                <div class="card-icone"><i class="bi bi-graph-up"></i></div>
+                <div class="card-info"><span class="numero">@Model.RelatorioPeriodo.Sum(r => r.TotalAgendamentos)</span><span class="label">Relatório por Serviço</span></div>
+                <i class="bi bi-chevron-down seta"></i>
+            </label>
+            <div class="lista-expansivel">
+                <form method="get" class="filtro-periodo">
+                    <input type="date" name="inicio" value="@Model.Inicio.ToString("yyyy-MM-dd")">
+                    <input type="date" name="fim" value="@Model.Fim.ToString("yyyy-MM-dd")">
+                    <button class="btn-editar">Filtrar</button>
+                </form>
+                @foreach (var r in Model.RelatorioPeriodo)
+                {
+                    <div class="receita-item">
+                        <span class="receita-servico">@r.Servico — @r.TotalAgendamentos agend. · @r.Cancelados cancel. (@r.TaxaCancelamento.ToString("0.0")%)</span>
+                        <span class="receita-valor">@r.Receita.ToString("C2", pt)</span>
+                    </div>
+                }
+                <div class="receita-total"><span>Receita do período</span><span>@Model.RelatorioPeriodo.Sum(r => r.Receita).ToString("C2", pt)</span></div>
+            </div>
+        </div>
+    </div>
+    <form asp-controller="Conta" asp-action="Sair" method="post" class="sair-painel"><button class="btn-editar"><i class="bi bi-box-arrow-right"></i> Sair do painel</button></form>
+</main>
+

@@ -1,0 +1,23 @@
+/* Identidade visual preservada do PIM III, com recursos locais. */
+@font-face {font-family:Rye;src:url('../vendor/rye/Rye-Regular.ttf') format('truetype');font-display:swap;}
+html {background:#080808;}
+body {min-height:100vh;height:auto !important;background:linear-gradient(135deg,#080808 0%,#141414 50%,#080808 100%);color:#f5f5f5;}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible {outline:3px solid #f39c12;outline-offset:3px;}
+button:disabled {opacity:.65;cursor:wait;}
+
+/* Telas de conta (login, cadastro, senha): mesma tipografia do restante do site. */
+.pagina-conta, .pagina-conta input, .pagina-conta button {font-family:Arial, Helvetica, sans-serif;}
+.pagina-conta h1 {font-family:Rye, serif; font-weight:normal; letter-spacing:1px; margin-bottom:6px;}
+.pagina-conta .input-box {margin:22px 0;}
+.pagina-conta .remember-forgot {align-items:center; font-size:14px; margin:-6px 0 18px; gap:10px;}
+.pagina-conta .remember-forgot label {display:flex; align-items:center; cursor:pointer;}
+.pagina-conta .register-link, .pagina-conta .funcionario {text-align:center;}
+.pagina-conta .register-link a, .pagina-conta .funcionario a {color:#f39c12;}
+.pagina-conta .alerta {border-radius:10px; padding:10px 14px; margin:14px 0 0; font-size:14px; text-align:center; line-height:1.45;}
+.pagina-conta .alerta.erro {background:rgba(255,80,80,.12); border:1px solid #ff6b6b; color:#ffb3b3;}
+.pagina-conta .alerta.ok {background:rgba(243,156,18,.12); border:1px solid #f39c12; color:#ffd699;}
+.pagina-conta .alerta a {color:#f39c12; font-weight:bold; word-break:break-all;}
+.pagina-conta .dica {font-size:12px; color:rgba(255,255,255,.6); margin:-14px 0 0 18px;}
+.pagina-acesso {max-width:520px; margin:80px auto; text-align:center; padding:40px; border:2px solid #f39c12; border-radius:15px; background:rgba(0,0,0,.75);}
+.pagina-acesso h2 {font-family:Rye, serif; margin-bottom:15px;}
+.pagina-acesso a {display:inline-block; margin-top:20px; padding:12px 26px; border-radius:12px; background:#f39c12; color:#000; font-weight:bold; text-decoration:none;}

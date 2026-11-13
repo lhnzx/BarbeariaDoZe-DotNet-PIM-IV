@@ -1,0 +1,21 @@
+@model RedefinirViewModel
+@{ Layout = "_LayoutSimples"; ViewData["Title"] = "Nova senha"; ViewData["Css"] = "senha"; }
+<form method="post">
+    <img src="~/img/Barbearia_Logo.png" alt="Barbearia do Zé" class="logo-login">
+    <h1>Nova senha</h1>
+    @if (Model.Mensagem is not null) { <p class="alerta @(Model.Sucesso ? "ok" : "erro")" role="status">@Model.Mensagem</p> }
+    @if (!Model.Sucesso)
+    {
+        <input asp-for="Token" type="hidden">
+        <div class="input-box">
+            <input asp-for="Senha" type="password" autocomplete="new-password" placeholder="Nova senha (mínimo 12 caracteres)" aria-label="Nova senha" required minlength="12" maxlength="128">
+            <i class="bx bxs-lock-alt"></i>
+        </div>
+        <div class="input-box">
+            <input asp-for="ConfirmarSenha" type="password" autocomplete="new-password" placeholder="Confirmar nova senha" aria-label="Confirmar nova senha" required>
+            <i class="bx bxs-lock"></i>
+        </div>
+        <button class="login">Salvar senha</button>
+    }
+    <div class="register-link"><p><a asp-action="Login">@(Model.Sucesso ? "Ir para o login" : "Voltar ao login")</a></p></div>
+</form>
