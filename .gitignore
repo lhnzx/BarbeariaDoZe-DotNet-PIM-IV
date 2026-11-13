@@ -1,0 +1,30 @@
+﻿# .NET
+bin/
+obj/
+*.user
+.vs/
+# Flutter
+BarbeariaDoZe.Mobile/build/
+BarbeariaDoZe.Mobile/.dart_tool/
+BarbeariaDoZe.Mobile/.idea/
+BarbeariaDoZe.Mobile/.flutter-plugins*
+*.iml
+# SO
+Thumbs.db
+
+# Configuração local e saídas da revisão
+**/bin/
+**/obj/
+**/build/
+.config-local.json
+.env
+.env.*
+!.env.example
+**/local.properties
+
+relatorio-integracao.json
+.teste-privado.json
+fixture-privada.json
+
+__pycache__/
+*.pyc
