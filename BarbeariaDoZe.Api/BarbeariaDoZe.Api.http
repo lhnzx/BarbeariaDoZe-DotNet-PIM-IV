@@ -1,0 +1,24 @@
+@host = http://localhost:5114
+@token = COLE_O_TOKEN_RETORNADO_PELO_LOGIN
+
+GET {{host}}/api/servicos
+
+### Cadastro de cliente de demonstração (troque os dados)
+POST {{host}}/api/conta/cadastro
+Content-Type: application/json
+
+{"nome":"Cliente Exemplo","telefone":"11999999999","email":"exemplo@example.invalid","senha":"TroqueEstaSenhaDeExemplo"}
+
+### Login
+POST {{host}}/api/conta/login
+Content-Type: application/json
+
+{"email":"exemplo@example.invalid","senha":"TroqueEstaSenhaDeExemplo"}
+
+### Reservas da conta autenticada; não se informa e-mail de terceiros
+GET {{host}}/api/agendamentos
+Authorization: Bearer {{token}}
+
+### Relatório: somente administrador
+GET {{host}}/api/relatorios/servicos?inicio=2026-01-01&fim=2026-12-31
+Authorization: Bearer {{token}}
